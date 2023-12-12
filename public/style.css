@@ -437,7 +437,7 @@ a {
   cursor: pointer;
   transform: translateY(-50%);
   top: 50%;
-  margin-top: -15px; /* Adjust this value as needed */
+  margin-top: -5px; /* Adjust this value as needed */
 }
 
 .carousel-control-prev {
@@ -465,3 +465,55 @@ a {
   font-size: larger;
   color: #d1e2ee;
 }
+
+.more-info-section1 {
+  background-image: linear-gradient(
+      rgba(22, 22, 22, 0.9),
+      rgba(22, 22, 22, 0.9)
+    ),
+    url("https://img.freepik.com/free-vector/coming-soon-construction-yellow-design_1017-26685.jpg?size=626&ext=jpg&ga=GA1.1.67993261.1698478419&semt=ais");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  padding: 6rem 0;
+  overflow: hidden;
+}
+
+.more-info-section1 .img-section {
+  position: relative;
+}
+
+.more-info-section1 img {
+  position: absolute;
+  top: -10%;
+  left: 0;
+  max-width: 100%;
+  width: 70%;
+  /*transform: scaleX(-1);*/
+}
+
+@media screen and (max-width: 1200px) {
+  .more-info-section1 img {
+    position: absolute;
+    bottom: 10%;
+    /*right: 10%;*/
+    /*top: 50%;*/
+    top: 0;
+    left: 55%;
+    max-width: 100%;
+    width: 50%;
+    transform: scaleX(1);
+  }
+
+  .para-width {
+    width: 90%;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .more-info-section1 img {
+    display: none;
+  }
+}
+
