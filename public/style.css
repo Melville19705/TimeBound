@@ -437,7 +437,7 @@ a {
   cursor: pointer;
   transform: translateY(-50%);
   top: 50%;
-  margin-top: -85px; /* Adjust this value as needed */
+  margin-top: -15px; /* Adjust this value as needed */
 }
 
 .carousel-control-prev {
