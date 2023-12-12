@@ -6,9 +6,12 @@ import jwt from "jsonwebtoken";
 import cors from "cors";
 const users = [];
 mongoose
-  .connect("mongodb://127.0.0.1:27017", {
-    dbName: "backend",
-  })
+  .connect(
+    "mongodb+srv://hardikpandey512:nodejsboy@cluster0.svrtsi8.mongodb.net/?retryWrites=true",
+    {
+      dbName: "backend",
+    }
+  )
   .then(() => console.log("Database Connected"))
   .catch((e) => console.log(e));
 
