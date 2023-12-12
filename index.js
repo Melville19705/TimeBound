@@ -137,6 +137,6 @@ app.post("/", async (req, res) => {
   res.redirect("/");
 });
 
-app.listen("1000", () => {
+app.listen(1000, () => {
   console.log("Server is working.");
 });
