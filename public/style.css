@@ -468,10 +468,9 @@ a {
 
 .more-info-section1 {
   background-image: linear-gradient(
-      rgba(22, 22, 22, 0.9),
-      rgba(22, 22, 22, 0.9)
-    ),
-    url("https://img.freepik.com/free-vector/coming-soon-construction-yellow-design_1017-26685.jpg?size=626&ext=jpg&ga=GA1.1.67993261.1698478419&semt=ais");
+    rgba(22, 22, 22, 0.9),
+    rgba(22, 22, 22, 0.9)
+  ), url("https://img.freepik.com/free-vector/coming-soon-construction-yellow-design_1017-26685.jpg?size=626&ext=jpg&ga=GA1.1.67993261.1698478419&semt=ais");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -490,16 +489,13 @@ a {
   left: 0;
   max-width: 100%;
   width: 70%;
-  /*transform: scaleX(-1);*/
+  /* transform: scaleX(-1); */
 }
 
 @media screen and (max-width: 1200px) {
   .more-info-section1 img {
     position: absolute;
     bottom: 10%;
-    /*right: 10%;*/
-    /*top: 50%;*/
-    top: 0;
     left: 55%;
     max-width: 100%;
     width: 50%;
@@ -515,5 +511,8 @@ a {
   .more-info-section1 img {
     display: none;
   }
-}
 
+  .more-info-section1 {
+    padding: 3rem 0; /* Adjust padding for smaller screens */
+  }
+}
