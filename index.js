@@ -4,14 +4,13 @@ import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
 import jwt from "jsonwebtoken";
 import cors from "cors";
+
 const users = [];
+
 mongoose
-  .connect(
-    "mongodb+srv://hardikpandey512:nodejsboy@cluster0.svrtsi8.mongodb.net/?retryWrites=true",
-    {
-      dbName: "backend",
-    }
-  )
+  .connect("mongodb+srv://hardikpandey512:nodejsboy@cluster0.svrtsi8.mongodb.net/?retryWrites=true", {
+    dbName: "backend",
+  })
   .then(() => console.log("Database Connected"))
   .catch((e) => console.log(e));
 
@@ -47,62 +46,99 @@ app.use(
   })
 );
 
-app.get("/", async (req, res) => {
+// Middleware to handle errors
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send("Something went wrong!");
+});
+
+app.get("/", async (req, res, next) => {
   const { token } = req.cookies;
 
-  if (token) {
-    const decoded = jwt.verify(token, "hahahaha");
-    req.user = await User.findById(decoded._id);
-    res.render("logout.ejs", { name: req.user.name });
-  } else {
-    res.render("book.ejs");
+  try {
+    if (token) {
+      const decoded = jwt.verify(token, "hahahaha");
+      req.user = await User.findById(decoded._id);
+      return res.render("logout.ejs", { name: req.user.name });
+    } else {
+      // Removed the duplicate res.render line
+      return res.render("book.ejs");
+    }
+  } catch (error) {
+    next(error); // Pass the error to the error-handling middleware
   }
-  res.render("book.ejs");
 });
 
 app.get("/success", (req, res) => {
   res.render("success.ejs");
 });
 
-app.post("/login", async (req, res) => {
+app.post("/login", async (req, res, next) => {
   const { email, password } = req.body;
-  let user = await User.findOne({ email });
-  if (!user) {
-    return res.redirect("/register");
+
+  try {
+    let user = await User.findOne({ email });
+    if (!user) {
+      return res.redirect("/register");
+    }
+    const isMatch = user.password === password;
+    if (!isMatch) {
+      return res.render("login.ejs", { email, message: "Incorrect Password" });
+    }
+
+    const token = jwt.sign({ _id: user._id }, "hahahaha");
+    res.cookie("token", token, {
+      httpOnly: true,
+      expires: new Date(Date.now() + 60 * 1000),
+      sameSite: process.env.NODE_ENV === "Development" ? "lax" : "none",
+      secure: process.env.NODE_ENV === "Development" ? "false" : "true",
+    });
+    return res.redirect("/");
+  } catch (error) {
+    next(error); // Pass the error to the error-handling middleware
   }
-  const isMatch = user.password === password;
-  if (!isMatch) {
-    return res.render("login.ejs", { email, message: "Incorrect Password" });
+});
+
+app.post("/", async (req, res, next) => {
+  try {
+    await Message.create({
+      firstname: req.body.fname,
+      lastname: req.body.lname,
+      email: req.body.email,
+      book: req.body.book,
+      time: req.body.time,
+    });
+    return res.redirect("/");
+  } catch (error) {
+    next(error); // Pass the error to the error-handling middleware
   }
-  const token = jwt.sign({ _id: user._id }, "hahahaha");
-  res.cookie("token", token, {
-    httpOnly: true,
-    expires: new Date(Date.now() + 60 * 1000),
-    sameSite: process.env.NODE_ENV === "Development" ? "lax" : "none",
-    secure: process.env.NODE_ENV === "Development" ? "false" : "true",
-  });
-  res.redirect("/");
 });
 
 app.post("/register", async (req, res) => {
   const { name, email, password } = req.body;
   let user = await User.findOne({ email });
+
   if (user) {
     return res.redirect("/login");
   }
-  user = await User.create({
-    name,
-    email,
-    password,
-  });
-  const token = jwt.sign({ _id: user._id }, "hahahaha");
-  res.cookie("token", token, {
-    httpOnly: true,
-    expires: new Date(Date.now() + 60 * 1000),
-    sameSite: process.env.NODE_ENV === "Development" ? "lax" : "none",
-    secure: process.env.NODE_ENV === "Development" ? "false" : "true",
-  });
-  res.redirect("/");
+
+  try {
+    user = await User.create({
+      name,
+      email,
+      password,
+    });
+    const token = jwt.sign({ _id: user._id }, "hahahaha");
+    res.cookie("token", token, {
+      httpOnly: true,
+      expires: new Date(Date.now() + 60 * 1000),
+      sameSite: process.env.NODE_ENV === "Development" ? "lax" : "none",
+      secure: process.env.NODE_ENV === "Development" ? "false" : "true",
+    });
+    return res.redirect("/");
+  } catch (error) {
+    next(error); // Pass the error to the error-handling middleware
+  }
 });
 
 app.get("/register", (req, res) => {
@@ -116,7 +152,7 @@ app.get("/logout", (req, res) => {
     sameSite: process.env.NODE_ENV === "Development" ? "lax" : "none",
     secure: process.env.NODE_ENV === "Development" ? "false" : "true",
   });
-  res.redirect("/");
+  return res.redirect("/");
 });
 
 app.get("/login", (req, res) => {
@@ -126,17 +162,8 @@ app.get("/login", (req, res) => {
 app.get("/explore", (req, res) => {
   res.render("explore");
 });
-app.post("/", async (req, res) => {
-  await Message.create({
-    firstname: req.body.fname,
-    lastname: req.body.lname,
-    email: req.body.email,
-    book: req.body.book,
-    time: req.body.time,
-  });
-  res.redirect("/");
-});
 
 app.listen(1000, () => {
   console.log("Server is working.");
 });
+
