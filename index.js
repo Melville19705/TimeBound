@@ -4,13 +4,16 @@ import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
 import jwt from "jsonwebtoken";
 import cors from "cors";
+import nodemailer from "nodemailer";
 
 const users = [];
-
 mongoose
-  .connect("mongodb+srv://hardikpandey512:nodejsboy@cluster0.svrtsi8.mongodb.net/?retryWrites=true", {
-    dbName: "backend",
-  })
+  .connect(
+    "mongodb+srv://hardikpandey512:nodejsboy@cluster0.svrtsi8.mongodb.net/?retryWrites=true",
+    {
+      dbName: "backend",
+    }
+  )
   .then(() => console.log("Database Connected"))
   .catch((e) => console.log(e));
 
@@ -46,99 +49,115 @@ app.use(
   })
 );
 
-// Middleware to handle errors
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).send("Something went wrong!");
-});
+// Nodemailer Start
+async function main(to, subject, html, userName) {
+  // Async function enables allows handling of promises with await
 
-app.get("/", async (req, res, next) => {
+  // First, define send settings by creating a new transporter:
+  let transporter = nodemailer.createTransport({
+    host: "smtp.gmail.com", // SMTP server address (usually mail.your-domain.com)
+    port: 465, // Port for SMTP (usually 465)
+    secure: true, // Usually true if connecting to port 465
+    auth: {
+      user: "hardikpandey512@gmail.com", // Your email address
+      pass: "oxcxxztrerlvwiqk", // Password (for Gmail, your app password)
+      // ⚠️ For better security, use environment variables set on the server for these values when deploying
+    },
+  });
+
+  // Define and send message inside transporter.sendEmail() and await info about send from promise:
+  let info = await transporter.sendMail({
+    from: '"TimeBound" <hardikpandey512@gmail.com>',
+    to: to,
+    subject: subject,
+    html: `
+    <html>
+      <head>
+        <style>
+          h1 {
+            color: #4285f4;
+          }
+          p {
+            font-size: 16px;
+            color: #333;
+          }
+          .highlight {
+            color: #4285f4;
+          }
+        </style>
+      </head>
+      <body>
+        <h1>Welcome to TimeBound</h1>
+        <p>Dear ${userName},</p>
+        <p>Thank you for renting a book from our platform. We appreciate your choice and hope you enjoy your reading experience with TimeBound.</p>
+        <p>We'll get in touch with you within 24 hours. If you have any questions or concerns, feel free to contact us.</p>
+        <p class="highlight">Happy Reading!</p>
+        <p class="highlight">Sincerely,<br>TimeBound Team</p>
+      </body>
+    </html>
+    `,
+  });
+
+  console.log(info.messageId); // Random ID generated after successful send (optional)
+}
+// END
+
+app.get("/", async (req, res) => {
   const { token } = req.cookies;
 
-  try {
-    if (token) {
-      const decoded = jwt.verify(token, "hahahaha");
-      req.user = await User.findById(decoded._id);
-      return res.render("logout.ejs", { name: req.user.name });
-    } else {
-      // Removed the duplicate res.render line
-      return res.render("book.ejs");
-    }
-  } catch (error) {
-    next(error); // Pass the error to the error-handling middleware
+  if (token) {
+    const decoded = jwt.verify(token, "hahahaha");
+    req.user = await User.findById(decoded._id);
+    res.render("logout.ejs", { name: req.user.name });
+  } else {
+    res.render("book.ejs");
   }
+  res.render("book.ejs");
 });
 
 app.get("/success", (req, res) => {
   res.render("success.ejs");
 });
 
-app.post("/login", async (req, res, next) => {
+app.post("/login", async (req, res) => {
   const { email, password } = req.body;
-
-  try {
-    let user = await User.findOne({ email });
-    if (!user) {
-      return res.redirect("/register");
-    }
-    const isMatch = user.password === password;
-    if (!isMatch) {
-      return res.render("login.ejs", { email, message: "Incorrect Password" });
-    }
-
-    const token = jwt.sign({ _id: user._id }, "hahahaha");
-    res.cookie("token", token, {
-      httpOnly: true,
-      expires: new Date(Date.now() + 60 * 1000),
-      sameSite: process.env.NODE_ENV === "Development" ? "lax" : "none",
-      secure: process.env.NODE_ENV === "Development" ? "false" : "true",
-    });
-    return res.redirect("/");
-  } catch (error) {
-    next(error); // Pass the error to the error-handling middleware
+  let user = await User.findOne({ email });
+  if (!user) {
+    return res.redirect("/register");
   }
-});
-
-app.post("/", async (req, res, next) => {
-  try {
-    await Message.create({
-      firstname: req.body.fname,
-      lastname: req.body.lname,
-      email: req.body.email,
-      book: req.body.book,
-      time: req.body.time,
-    });
-    return res.redirect("/");
-  } catch (error) {
-    next(error); // Pass the error to the error-handling middleware
+  const isMatch = user.password === password;
+  if (!isMatch) {
+    return res.render("login.ejs", { email, message: "Incorrect Password" });
   }
+  const token = jwt.sign({ _id: user._id }, "hahahaha");
+  res.cookie("token", token, {
+    httpOnly: true,
+    expires: new Date(Date.now() + 60 * 1000),
+    sameSite: process.env.NODE_ENV === "Development" ? "lax" : "none",
+    secure: process.env.NODE_ENV === "Development" ? "false" : "true",
+  });
+  res.redirect("/");
 });
 
 app.post("/register", async (req, res) => {
   const { name, email, password } = req.body;
   let user = await User.findOne({ email });
-
   if (user) {
     return res.redirect("/login");
   }
-
-  try {
-    user = await User.create({
-      name,
-      email,
-      password,
-    });
-    const token = jwt.sign({ _id: user._id }, "hahahaha");
-    res.cookie("token", token, {
-      httpOnly: true,
-      expires: new Date(Date.now() + 60 * 1000),
-      sameSite: process.env.NODE_ENV === "Development" ? "lax" : "none",
-      secure: process.env.NODE_ENV === "Development" ? "false" : "true",
-    });
-    return res.redirect("/");
-  } catch (error) {
-    next(error); // Pass the error to the error-handling middleware
-  }
+  user = await User.create({
+    name,
+    email,
+    password,
+  });
+  const token = jwt.sign({ _id: user._id }, "hahahaha");
+  res.cookie("token", token, {
+    httpOnly: true,
+    expires: new Date(Date.now() + 60 * 1000),
+    sameSite: process.env.NODE_ENV === "Development" ? "lax" : "none",
+    secure: process.env.NODE_ENV === "Development" ? "false" : "true",
+  });
+  res.redirect("/");
 });
 
 app.get("/register", (req, res) => {
@@ -152,7 +171,7 @@ app.get("/logout", (req, res) => {
     sameSite: process.env.NODE_ENV === "Development" ? "lax" : "none",
     secure: process.env.NODE_ENV === "Development" ? "false" : "true",
   });
-  return res.redirect("/");
+  res.redirect("/");
 });
 
 app.get("/login", (req, res) => {
@@ -163,7 +182,25 @@ app.get("/explore", (req, res) => {
   res.render("explore");
 });
 
-app.listen(1000, () => {
-  console.log("Server is working.");
+app.post("/", async (req, res) => {
+  const { email, subject, html, fname, lname, book, time } = req.body;
+
+  await Message.create({
+    firstname: fname,
+    lastname: lname,
+    email,
+    book,
+    time,
+  });
+
+  // Provide correct parameters to the main function
+  main(email, "Welcome to TimeBound", html, fname).catch((err) =>
+    console.log(err)
+  );
+
+  res.redirect("/");
 });
 
+app.listen("1000", () => {
+  console.log("Server is working.");
+});
