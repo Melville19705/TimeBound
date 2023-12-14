@@ -23,6 +23,7 @@ const messageSchema = new mongoose.Schema({
   email: String,
   book: String,
   time: String,
+  mobile:String,
 });
 
 const Message = mongoose.model("Message", messageSchema);
@@ -204,7 +205,7 @@ app.get("/explore", (req, res) => {
 });
 
 app.post("/", async (req, res) => {
-  const { email, subject, html, fname, lname, book, time } = req.body;
+  const { email, subject, html, fname, lname, book, time, mobile} = req.body;
 
   await Message.create({
     firstname: fname,
@@ -212,6 +213,7 @@ app.post("/", async (req, res) => {
     email,
     book,
     time,
+    mobile,
   });
 
   // Provide correct parameters to the main function
