@@ -105,7 +105,7 @@ async function main(to, subject, html, userName) {
         <h1>Welcome to TimeBound</h1>
         <p>Dear ${userName},</p>
         <p>Thank you for renting a book from our platform. We appreciate your choice and hope you enjoy your reading experience with TimeBound.</p>
-        <p>We'll get in touch with you within 24 hours. If you have any questions or concerns, feel free to contact us.</p>
+        <p>We'll get in touch with you within 24 hours. If you have any questions or concerns, feel free to contact us.<br>Check our website: <a href="https://timebound.onrender.com">TimeBound</a></p>
         <ol>
         <li>Book should be handled with care if book found damaged fine will be applied </li>
         <li>Marking on book with pen and pencil is prohibited </li>
