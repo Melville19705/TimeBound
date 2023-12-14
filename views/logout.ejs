@@ -563,7 +563,7 @@
                             >
                         </div>
                         <div class="col">
-                            <label for="last-name" class="form-label11">Last name</label>
+                            <label class="form-label11" for="last-name">Last name</label>
                             <input
                                 name="lname"
                                 type="text"
@@ -572,6 +572,18 @@
                                 placeholder="Last name"
                                 aria-label="Last name"
                                 required
+                            >
+                        </div>
+                        <div class="col">
+                            <label for="mobile-number" class="form-label11">Mobile Number</label>
+                            <input
+                                name="mobile"
+                                type="tel"
+                                class="form-control11"
+                                id="mobile-number"
+                                required
+                                placeholder="Enter your mobile number"
+                                aria-describedby="mobileHelp"
                             >
                         </div>
                     </div>
@@ -587,13 +599,15 @@
                         placeholder="Enter your email"
                         aria-describedby="emailHelp"
                     >
-                    <div id="emailHelp" class="form-text11">
-                        We'll never share your email with anyone else.
-                    </div>
                 </div>
                 <div class="mb-3">
-                    <label for="dropdownField" class="form-label11">Dropdown Field</label>
-                    <select name="book" class="form-control11" id="dropdownField">
+                    <label for="dropdownField" class="form-label11">Book Selection</label>
+                    <select
+                        name="book"
+                        class="form-control11"
+                        id="dropdownField"
+                        required
+                    >
                         <option value="" disabled selected>Select an option</option>
                         <option value="Rich Dad Poor Dad">Rich Dad Poor Dad</option>
                         <option value="The Psycology of Money">The Psycology of Money</option>
@@ -634,8 +648,13 @@
                     </select>
                 </div>
                 <div class="mb-3">
-                    <label for="dropdownField" class="form-label11">Dropdown Field</label>
-                    <select name="time" class="form-control11" id="dropdownField">
+                    <label for="timePeriod" class="form-label11">Rental Period</label>
+                    <select
+                        name="time"
+                        class="form-control11"
+                        id="timePeriod"
+                        required
+                    >
                         <option value="" disabled selected>Select an option</option>
                         <option value="One week">One week</option>
                         <option value="Two weeks">Two weeks</option>
