@@ -74,6 +74,21 @@ async function main(to, subject, html, userName) {
     <html>
       <head>
         <style>
+          body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            background-color:#212121;
+          }
+
+          ol {
+            padding: 0;
+            margin: 0;
+            list-style-type: decimal;
+          }
+
+          li {
+            margin-bottom: 10px;
+          }
           h1 {
             color: #4285f4;
           }
@@ -91,6 +106,12 @@ async function main(to, subject, html, userName) {
         <p>Dear ${userName},</p>
         <p>Thank you for renting a book from our platform. We appreciate your choice and hope you enjoy your reading experience with TimeBound.</p>
         <p>We'll get in touch with you within 24 hours. If you have any questions or concerns, feel free to contact us.</p>
+        <ol>
+        <li>Book should be handled with care if book found damaged fine will be applied </li>
+        <li>Marking on book with pen and pencil is prohibited </li>
+        <li>Delivery will be free of cost within our radar if not it will charge you only Rs10</li>
+        <li>If delivery is cancelled at the doorstep there is a fine of Rs100</li>
+        </ol>
         <p class="highlight">Happy Reading!</p>
         <p class="highlight">Sincerely,<br>TimeBound Team</p>
       </body>
@@ -199,6 +220,14 @@ app.post("/", async (req, res) => {
   );
 
   res.redirect("/");
+});
+
+app.get("/privacy-policy", (req, res) => {
+  res.render("privacy-policy");
+});
+
+app.get("/terms-conditions", (req, res) => {
+  res.render("terms-conditions");
 });
 
 app.listen("1000", () => {
