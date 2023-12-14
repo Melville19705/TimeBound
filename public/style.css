@@ -516,3 +516,13 @@ a {
     display: none;
   }
 }
+.footer-links a {
+  color: #fff;
+  text-decoration: none;
+  margin-right: 20px;
+}
+
+.footer-links a:hover {
+  text-decoration: underline;
+}
+
