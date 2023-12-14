@@ -83,7 +83,7 @@ a {
 .hero-section .container {
   display: grid;
   place-items: center;
-  height: inherit;
+  height: 300px;
 }
 .hero-section h1 {
   font-size: 3.4rem;
@@ -133,7 +133,7 @@ a {
   }
 
   .hero-section {
-    height: 150vh;
+    height: 100vh;
   }
 
   .navbar-toggler {
