@@ -204,6 +204,16 @@ app.get("/explore", (req, res) => {
   res.render("explore");
 });
 
+app.post("/", (req, res) => {
+  const urlParams = new URLSearchParams(req.query);
+  const message = urlParams.get("message");
+
+  // Render the EJS template and pass data
+  res.render("book", {
+    message: "Check your primary or spam gmail directory!",
+  });
+});
+
 app.post("/", async (req, res) => {
   const { email, subject, html, fname, lname, book, time, mobile} = req.body;
 
