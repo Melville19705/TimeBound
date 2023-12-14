@@ -554,7 +554,7 @@
                             >
                         </div>
                         <div class="col">
-                            <label for="last-name" class="form-label11">Last name</label>
+                            <label class="form-label11" for="last-name">Last name</label>
                             <input
                                 name="lname"
                                 type="text"
@@ -563,6 +563,18 @@
                                 placeholder="Last name"
                                 aria-label="Last name"
                                 required
+                            >
+                        </div>
+                        <div class="col">
+                            <label for="mobile-number" class="form-label11">Mobile Number</label>
+                            <input
+                                name="mobile"
+                                type="tel"
+                                class="form-control11"
+                                id="mobile-number"
+                                required
+                                placeholder="Enter your mobile number"
+                                aria-describedby="mobileHelp"
                             >
                         </div>
                     </div>
@@ -578,12 +590,9 @@
                         placeholder="Enter your email"
                         aria-describedby="emailHelp"
                     >
-                    <div id="emailHelp" class="form-text11">
-                        We'll never share your email with anyone else.
-                    </div>
                 </div>
                 <div class="mb-3">
-                    <label for="dropdownField" class="form-label11">Dropdown Field</label>
+                    <label for="dropdownField" class="form-label11">Book Selection</label>
                     <select
                         name="book"
                         class="form-control11"
@@ -630,11 +639,11 @@
                     </select>
                 </div>
                 <div class="mb-3">
-                    <label for="dropdownField" class="form-label11">Dropdown Field</label>
+                    <label for="timePeriod" class="form-label11">Rental Period</label>
                     <select
                         name="time"
                         class="form-control11"
-                        id="dropdownField"
+                        id="timePeriod"
                         required
                     >
                         <option value="" disabled selected>Select an option</option>
