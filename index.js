@@ -9,7 +9,7 @@ import nodemailer from "nodemailer";
 const users = [];
 mongoose
   .connect(
-    "mongodb+srv://hardikpandey512:nodejsboy@cluster0.svrtsi8.mongodb.net/?retryWrites=true",
+    "mongodb+srv://hardikco35:g3PAjSYrHMUTz5mO@cluster0.upel5gd.mongodb.net/?retryWrites=true&w=majority",
     {
       dbName: "backend",
     }
