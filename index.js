@@ -17,7 +17,7 @@ mongoose
   .then(() => console.log("Database Connected"))
   .catch((e) => console.log(e));
 
-const messageSchema = new mongoose.Schema({
+const detailSchema = new mongoose.Schema({
   firstname: String,
   lastname: String,
   email: String,
@@ -26,7 +26,7 @@ const messageSchema = new mongoose.Schema({
   mobile:String,
 });
 
-const Message = mongoose.model("Message", messageSchema);
+const Detail = mongoose.model("Detail", detailSchema);
 
 const userSchema = new mongoose.Schema({
   name: String,
@@ -217,7 +217,7 @@ app.post("/", (req, res) => {
 app.post("/", async (req, res) => {
   const { email, subject, html, fname, lname, book, time, mobile} = req.body;
 
-  await Message.create({
+  await Detail.create({
     firstname: fname,
     lastname: lname,
     email,
