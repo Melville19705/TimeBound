@@ -251,7 +251,7 @@ app.post("/register", async (req, res) => {
     secure: process.env.NODE_ENV === "Development" ? "false" : "true",
   });
   // Send verification email
-  const verificationLink = `http://localhost:1000/verify?token=${verificationToken}`;
+  const verificationLink = `https://timebound.onrender.com/verify?token=${verificationToken}`;
   const verificationSubject = "Verify your email with TimeBound";
   const verificationHTML = `
     <html>
