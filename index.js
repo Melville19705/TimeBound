@@ -234,6 +234,26 @@ app.post("/", async (req, res) => {
   res.redirect("/");
 });
 
+app.post("/logout", async (req, res) => {
+  const { email, subject, html, fname, lname, book, time, mobile} = req.body;
+
+  await Detail.create({
+    firstname: fname,
+    lastname: lname,
+    email,
+    book,
+    time,
+    mobile,
+  });
+
+  // Provide correct parameters to the main function
+  main(email, "Welcome to TimeBound", html, fname).catch((err) =>
+    console.log(err)
+  );
+
+  res.render("logout.ejs");
+});
+
 app.get("/privacy-policy", (req, res) => {
   res.render("privacy-policy");
 });
