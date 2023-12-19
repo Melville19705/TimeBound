@@ -43,23 +43,19 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // Nodemailer Start
-async function main(to, subject, html, userName) {
-  // Async function enables allows handling of promises with await
-
-  // First, define send settings by creating a new transporter:
+async function main(to, subject, userName, formData) {
   let transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com", // SMTP server address (usually mail.your-domain.com)
-    port: 465, // Port for SMTP (usually 465)
-    secure: true, // Usually true if connecting to port 465
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true,
     auth: {
-      user: "timeboundbooks8@gmail.com", // Your email address
-      pass: "grdsjikefqdaiyad", // Password (for Gmail, your app password)
-      // ⚠️ For better security, use environment variables set on the server for these values when deploying
+      user: "timeboundbooks8@gmail.com",
+      pass: "grdsjikefqdaiyad",
     },
   });
 
-  // Define and send message inside transporter.sendEmail() and await info about send from promise:
-  let info = await transporter.sendMail({
+  // Send welcome email to the user
+  let userMailInfo = await transporter.sendMail({
     from: '"TimeBound" <timeboundbooks8@gmail.com>',
     to: to,
     subject: subject,
@@ -112,8 +108,39 @@ async function main(to, subject, html, userName) {
     `,
   });
 
-  console.log(info.messageId); // Random ID generated after successful send (optional)
+  // Send email to timeboundbooks8@gmail.com with user input data
+  let adminMailInfo = await transporter.sendMail({
+    from: '"TimeBound" <timeboundbooks8@gmail.com>',
+    to: "timeboundbooks8@gmail.com",
+    subject: "User Input Data",
+    html: `
+      <html>
+        <head>
+          <!-- Your styles here -->
+        </head>
+        <body>
+          <h1>User Input Data</h1>
+          <p>First Name: ${formData.firstname}</p>
+          <p>Last Name: ${formData.lastname}</p>
+          <p>Email: ${formData.email}</p>
+          <p>Book: ${formData.book}</p>
+          <p>Time: ${formData.time}</p>
+          <p>Mobile: ${formData.mobile}</p>
+        </body>
+      </html>
+    `,
+  });
+
+  console.log("Welcome email sent to user:", userMailInfo.messageId);
+  console.log(
+    "Admin email with user input data sent:",
+    adminMailInfo.messageId
+  );
+
+  // Additional logic to handle the user's input data
+  console.log("User Data:", formData);
 }
+
 // END
 
 app.get("/", async (req, res) => {
@@ -238,6 +265,14 @@ app.get("/explore", (req, res) => {
 
 app.post("/", async (req, res) => {
   const { email, subject, html, fname, lname, book, time, mobile } = req.body;
+  const formData = {
+    firstname: fname,
+    lastname: lname,
+    email,
+    book,
+    time,
+    mobile,
+  };
 
   try {
     const result = await Message.create({
@@ -251,33 +286,32 @@ app.post("/", async (req, res) => {
 
     console.log("Data inserted successfully:", result);
 
-    // Wait for the main function to complete before redirecting
-    await main(email, "Welcome to TimeBound", html, fname);
+    await main(email, "Welcome to TimeBound", fname, formData);
 
-    // // Redirect after the main function is finished
-    // res.redirect("/");
-
-    const urlParams = new URLSearchParams(req.query);
-    const message = urlParams.get("message");
-
-    // Render the EJS template and pass data
     res.render("book", {
       message: "Check your primary or spam Gmail directory!",
     });
   } catch (error) {
     console.error("Error inserting data:", error);
-    // Handle the error and possibly redirect or render an error page
     res.status(500).send("Internal Server Error");
   }
 });
 
 app.post("/logout", async (req, res) => {
   const { email, subject, html, fname, lname, book, time, mobile } = req.body;
+  const formData = {
+    firstname,
+    lastname,
+    email,
+    book,
+    time,
+    mobile,
+  };
 
   try {
     const result = await Message.create({
-      firstname: fname,
-      lastname: lname,
+      firstname,
+      lastname,
       email,
       book,
       time,
@@ -286,22 +320,13 @@ app.post("/logout", async (req, res) => {
 
     console.log("Data inserted successfully:", result);
 
-    // Wait for the main function to complete before redirecting
-    await main(email, "Welcome to TimeBound", html, fname);
+    await main(email, "Welcome to TimeBound", f, name, formData);
 
-    // // Redirect after the main function is finished
-    // res.redirect("/");
-
-    const urlParams = new URLSearchParams(req.query);
-    const message = urlParams.get("message");
-
-    // Render the EJS template and pass data
     res.render("logout", {
       message: "Check your primary or spam Gmail directory!",
     });
   } catch (error) {
     console.error("Error inserting data:", error);
-    // Handle the error and possibly redirect or render an error page
     res.status(500).send("Internal Server Error");
   }
 });
