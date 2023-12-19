@@ -227,13 +227,13 @@ app.get("/explore", (req, res) => {
   res.render("explore");
 });
 // app.post("/", (req, res) => {
-//   const urlParams = new URLSearchParams(req.query);
-//   const message = urlParams.get("message");
+// const urlParams = new URLSearchParams(req.query);
+// const message = urlParams.get("message");
 
-//   // Render the EJS template and pass data
-//   res.render("book", {
-//     message: "Check your primary or spam gmail directory!",
-//   });
+// // Render the EJS template and pass data
+// res.render("book", {
+//   message: "Check your primary or spam gmail directory!",
+// });
 // });
 
 app.post("/", async (req, res) => {
@@ -250,15 +250,25 @@ app.post("/", async (req, res) => {
     });
 
     console.log("Data inserted successfully:", result);
+
+    // Wait for the main function to complete before redirecting
+    await main(email, "Welcome to TimeBound", html, fname);
+
+    // // Redirect after the main function is finished
+    // res.redirect("/");
+
+    const urlParams = new URLSearchParams(req.query);
+    const message = urlParams.get("message");
+
+    // Render the EJS template and pass data
+    res.render("book", {
+      message: "Check your primary or spam Gmail directory!",
+    });
   } catch (error) {
     console.error("Error inserting data:", error);
+    // Handle the error and possibly redirect or render an error page
+    res.status(500).send("Internal Server Error");
   }
-
-  main(email, "Welcome to TimeBound", html, fname).catch((err) =>
-    console.log(err)
-  );
-
-  res.redirect("/");
 });
 
 app.post("/logout", async (req, res) => {
@@ -275,15 +285,25 @@ app.post("/logout", async (req, res) => {
     });
 
     console.log("Data inserted successfully:", result);
+
+    // Wait for the main function to complete before redirecting
+    await main(email, "Welcome to TimeBound", html, fname);
+
+    // // Redirect after the main function is finished
+    // res.redirect("/");
+
+    const urlParams = new URLSearchParams(req.query);
+    const message = urlParams.get("message");
+
+    // Render the EJS template and pass data
+    res.render("logout", {
+      message: "Check your primary or spam Gmail directory!",
+    });
   } catch (error) {
     console.error("Error inserting data:", error);
+    // Handle the error and possibly redirect or render an error page
+    res.status(500).send("Internal Server Error");
   }
-
-  main(email, "Welcome to TimeBound", html, fname).catch((err) =>
-    console.log(err)
-  );
-
-  res.render("logout.ejs");
 });
 
 app.get("/privacy-policy", (req, res) => {
@@ -297,4 +317,3 @@ app.get("/terms-conditions", (req, res) => {
 app.listen("1000", () => {
   console.log("Server is working.");
 });
-
