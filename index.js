@@ -52,15 +52,15 @@ async function main(to, subject, html, userName) {
     port: 465, // Port for SMTP (usually 465)
     secure: true, // Usually true if connecting to port 465
     auth: {
-      user: "hardikpandey512@gmail.com", // Your email address
-      pass: "yoaetznygbdrtdrn", // Password (for Gmail, your app password)
+      user: "timeboundbooks8@gmail.com", // Your email address
+      pass: "grdsjikefqdaiyad", // Password (for Gmail, your app password)
       // ⚠️ For better security, use environment variables set on the server for these values when deploying
     },
   });
 
   // Define and send message inside transporter.sendEmail() and await info about send from promise:
   let info = await transporter.sendMail({
-    from: '"TimeBound" <hardikpandey512@gmail.com>',
+    from: '"TimeBound" <timeboundbooks8@gmail.com>',
     to: to,
     subject: subject,
     html: `
