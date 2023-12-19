@@ -31,10 +31,7 @@ const userSchema = new mongoose.Schema({
   name: String,
   email: String,
   password: String,
-  isVerified: { type: Boolean, default: false },
-  verificationToken: String,
 });
-
 const User = mongoose.model("User", userSchema);
 
 const app = express();
@@ -143,37 +140,6 @@ async function main(to, subject, userName, formData) {
   // Additional logic to handle the user's input data
   console.log("User Data:", formData);
 }
-async function sendVerificationEmail(
-  to,
-  subject,
-  userName,
-  verificationLink,
-  htmlContent
-) {
-  let transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 465,
-    secure: true,
-    auth: {
-      user: "timeboundbooks8@gmail.com",
-      pass: "grdsjikefqdaiyad",
-    },
-  });
-
-  try {
-    let userMailInfo = await transporter.sendMail({
-      from: '"TimeBound" <timeboundbooks8@gmail.com>',
-      to: to,
-      subject: subject,
-      html: htmlContent,
-    });
-
-    console.log("Verification email sent to user:", userMailInfo.messageId);
-  } catch (error) {
-    console.error("Error sending verification email:", error);
-    throw error; // Propagate the error to the caller
-  }
-}
 
 // END
 
@@ -201,12 +167,6 @@ app.post("/login", async (req, res) => {
   if (!user) {
     return res.redirect("/register");
   }
-  if (!user.isVerified) {
-    return res.render("login.ejs", {
-      email,
-      message: "Email not verified. Check your email for instructions.",
-    });
-  }
 
   const isMatch = user.password === password;
   if (!isMatch) {
@@ -214,6 +174,16 @@ app.post("/login", async (req, res) => {
   }
 
   const token = jwt.sign({ _id: user._id }, "hahahaha");
+
+  if (req.headers.referer) {
+    // Check if the referer path is one of the specified pages
+    if (req.headers.referer.includes("/privacy-policy")) {
+      redirectPath = "/privacy-policy";
+    } else if (req.headers.referer.includes("/terms-conditions")) {
+      redirectPath = "/terms-conditions";
+    }
+    // You can add more conditions for other pages if needed
+  }
 
   res.cookie("token", token, {
     httpOnly: true,
@@ -228,9 +198,8 @@ app.post("/login", async (req, res) => {
 app.post("/register", async (req, res) => {
   const { name, email, password } = req.body;
   let user = await User.findOne({ email });
-  const verificationToken = jwt.sign({ email }, "hahahaha", {
-    expiresIn: "1d",
-  });
+  let redirectPath = "/"; // Default redirection path
+
   if (user) {
     return res.redirect("/login");
   }
@@ -239,10 +208,19 @@ app.post("/register", async (req, res) => {
     name,
     email,
     password,
-    verificationToken,
   });
 
   const token = jwt.sign({ _id: user._id }, "hahahaha");
+
+  if (req.headers.referer) {
+    // Check if the referer path is one of the specified pages
+    if (req.headers.referer.includes("/privacy-policy")) {
+      redirectPath = "/privacy-policy";
+    } else if (req.headers.referer.includes("/terms-conditions")) {
+      redirectPath = "/terms-conditions";
+    }
+    // You can add more conditions for other pages if needed
+  }
 
   res.cookie("token", token, {
     httpOnly: true,
@@ -250,75 +228,12 @@ app.post("/register", async (req, res) => {
     sameSite: process.env.NODE_ENV === "Development" ? "lax" : "none",
     secure: process.env.NODE_ENV === "Development" ? "false" : "true",
   });
-  // Send verification email
-  const verificationLink = `https://timebound.onrender.com/verify?token=${verificationToken}`;
-  const verificationSubject = "Verify your email with TimeBound";
-  const verificationHTML = `
-    <html>
-      <head>
-        <style>
-          /* Your email styles here */
-        </style>
-      </head>
-      <body>
-        <h1>Welcome to TimeBound</h1>
-        <p>Dear ${name},</p>
-        <p>Thank you for registering with TimeBound. To complete your registration, please verify your email by clicking the link below:</p>
-        <p><a href="${verificationLink}">${verificationLink}</a></p>
-        <p>If you did not request this verification, please ignore this email.</p>
-        <p class="highlight">Sincerely,<br>TimeBound Team</p>
-      </body>
-    </html>
-  `;
 
-  try {
-    await sendVerificationEmail(
-      email,
-      verificationSubject,
-      name,
-      verificationLink,
-      verificationHTML
-    );
-    console.log("Verification email sent successfully");
-  } catch (error) {
-    console.error("Error sending verification email:", error);
-    // Handle the error as needed
-  }
-
-  res.render("register.ejs", {
-    message: "Check your email for verification instructions.",
-  });
-  // res.redirect("/");
+  res.redirect(redirectPath);
 });
 
 app.get("/register", (req, res) => {
   res.render("register.ejs");
-});
-
-app.get("/verify", async (req, res) => {
-  const { token } = req.query;
-
-  try {
-    const decoded = jwt.verify(token, "hahahaha");
-    const user = await User.findOne({ email: decoded.email });
-
-    if (user) {
-      user.isVerified = true;
-      user.verificationToken = null; // Optional: Clear the verification token after successful verification
-      await user.save();
-
-      res.render("verify.ejs", {
-        message: "Email verification successful. You can now login.",
-      });
-    } else {
-      res.render("verify.ejs", { message: "Invalid verification token." });
-    }
-  } catch (error) {
-    console.error(error);
-    res.render("verify.ejs", {
-      message: "Error verifying email. Please try again.",
-    });
-  }
 });
 
 app.get("/logout", (req, res) => {
