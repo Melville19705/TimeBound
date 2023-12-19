@@ -3,15 +3,14 @@ import path from "path";
 import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
 import jwt from "jsonwebtoken";
-import cors from "cors";
 import nodemailer from "nodemailer";
 
-const users = [];
 mongoose
   .connect(
     "mongodb+srv://hardikjsboy512:MbUeYgnTILFR5owd@timebound.nhlbvph.mongodb.net/?retryWrites=true&w=majority",
     {
       dbName: "backend",
+      useNewUrlParser: true, // Correcting the typo here
     }
   )
   .then(() => console.log("Database Connected"))
@@ -23,10 +22,10 @@ const detailSchema = new mongoose.Schema({
   email: String,
   book: String,
   time: String,
-  mobile:String,
+  mobile: Number,
 });
 
-const Detail = mongoose.model("Detail", detailSchema);
+const Message = mongoose.model("Message", detailSchema);
 
 const userSchema = new mongoose.Schema({
   name: String,
@@ -42,13 +41,6 @@ app.set("views", path.join(path.resolve(), "views"));
 app.use(express.static(path.join(path.resolve(), "public")));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(
-  cors({
-    origin: [process.env.FRONTEND_URL],
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true,
-  })
-);
 
 // Nodemailer Start
 async function main(to, subject, html, userName) {
@@ -61,14 +53,14 @@ async function main(to, subject, html, userName) {
     secure: true, // Usually true if connecting to port 465
     auth: {
       user: "hardikpandey512@gmail.com", // Your email address
-      pass: "oxcxxztrerlvwiqk", // Password (for Gmail, your app password)
+      pass: "yoaetznygbdrtdrn", // Password (for Gmail, your app password)
       // ⚠️ For better security, use environment variables set on the server for these values when deploying
     },
   });
 
   // Define and send message inside transporter.sendEmail() and await info about send from promise:
   let info = await transporter.sendMail({
-    from: '"TimeBound" <timeboundbooks8@gmail.com>',
+    from: '"TimeBound" <hardikpandey512@gmail.com>',
     to: to,
     subject: subject,
     html: `
@@ -130,11 +122,10 @@ app.get("/", async (req, res) => {
   if (token) {
     const decoded = jwt.verify(token, "hahahaha");
     req.user = await User.findById(decoded._id);
-    res.render("logout.ejs", { name: req.user.name });
+    return res.render("logout.ejs", { name: req.user.name });
   } else {
-    res.render("book.ejs");
+    return res.render("book.ejs");
   }
-  res.render("book.ejs");
 });
 
 app.get("/success", (req, res) => {
@@ -144,42 +135,74 @@ app.get("/success", (req, res) => {
 app.post("/login", async (req, res) => {
   const { email, password } = req.body;
   let user = await User.findOne({ email });
+  let redirectPath = "/"; // Default redirection path
+
   if (!user) {
     return res.redirect("/register");
   }
+
   const isMatch = user.password === password;
   if (!isMatch) {
     return res.render("login.ejs", { email, message: "Incorrect Password" });
   }
+
   const token = jwt.sign({ _id: user._id }, "hahahaha");
+
+  if (req.headers.referer) {
+    // Check if the referer path is one of the specified pages
+    if (req.headers.referer.includes("/privacy-policy")) {
+      redirectPath = "/privacy-policy";
+    } else if (req.headers.referer.includes("/terms-conditions")) {
+      redirectPath = "/terms-conditions";
+    }
+    // You can add more conditions for other pages if needed
+  }
+
   res.cookie("token", token, {
     httpOnly: true,
     expires: new Date(Date.now() + 60 * 1000),
     sameSite: process.env.NODE_ENV === "Development" ? "lax" : "none",
     secure: process.env.NODE_ENV === "Development" ? "false" : "true",
   });
-  res.redirect("/");
+
+  res.redirect(redirectPath);
 });
 
 app.post("/register", async (req, res) => {
   const { name, email, password } = req.body;
   let user = await User.findOne({ email });
+  let redirectPath = "/"; // Default redirection path
+
   if (user) {
     return res.redirect("/login");
   }
+
   user = await User.create({
     name,
     email,
     password,
   });
+
   const token = jwt.sign({ _id: user._id }, "hahahaha");
+
+  if (req.headers.referer) {
+    // Check if the referer path is one of the specified pages
+    if (req.headers.referer.includes("/privacy-policy")) {
+      redirectPath = "/privacy-policy";
+    } else if (req.headers.referer.includes("/terms-conditions")) {
+      redirectPath = "/terms-conditions";
+    }
+    // You can add more conditions for other pages if needed
+  }
+
   res.cookie("token", token, {
     httpOnly: true,
     expires: new Date(Date.now() + 60 * 1000),
     sameSite: process.env.NODE_ENV === "Development" ? "lax" : "none",
     secure: process.env.NODE_ENV === "Development" ? "false" : "true",
   });
-  res.redirect("/");
+
+  res.redirect(redirectPath);
 });
 
 app.get("/register", (req, res) => {
@@ -203,7 +226,6 @@ app.get("/login", (req, res) => {
 app.get("/explore", (req, res) => {
   res.render("explore");
 });
-
 // app.post("/", (req, res) => {
 //   const urlParams = new URLSearchParams(req.query);
 //   const message = urlParams.get("message");
@@ -215,18 +237,23 @@ app.get("/explore", (req, res) => {
 // });
 
 app.post("/", async (req, res) => {
-  const { email, subject, html, fname, lname, book, time, mobile} = req.body;
+  const { email, subject, html, fname, lname, book, time, mobile } = req.body;
 
-  await Detail.create({
-    firstname: fname,
-    lastname: lname,
-    email,
-    book,
-    time,
-    mobile,
-  });
+  try {
+    const result = await Message.create({
+      firstname: fname,
+      lastname: lname,
+      email,
+      book,
+      time,
+      mobile: parseInt(mobile, 10),
+    });
 
-  // Provide correct parameters to the main function
+    console.log("Data inserted successfully:", result);
+  } catch (error) {
+    console.error("Error inserting data:", error);
+  }
+
   main(email, "Welcome to TimeBound", html, fname).catch((err) =>
     console.log(err)
   );
@@ -235,18 +262,23 @@ app.post("/", async (req, res) => {
 });
 
 app.post("/logout", async (req, res) => {
-  const { email, subject, html, fname, lname, book, time, mobile} = req.body;
+  const { email, subject, html, fname, lname, book, time, mobile } = req.body;
 
-  await Detail.create({
-    firstname: fname,
-    lastname: lname,
-    email,
-    book,
-    time,
-    mobile,
-  });
+  try {
+    const result = await Message.create({
+      firstname: fname,
+      lastname: lname,
+      email,
+      book,
+      time,
+      mobile: parseInt(mobile, 10),
+    });
 
-  // Provide correct parameters to the main function
+    console.log("Data inserted successfully:", result);
+  } catch (error) {
+    console.error("Error inserting data:", error);
+  }
+
   main(email, "Welcome to TimeBound", html, fname).catch((err) =>
     console.log(err)
   );
@@ -265,3 +297,4 @@ app.get("/terms-conditions", (req, res) => {
 app.listen("1000", () => {
   console.log("Server is working.");
 });
+
