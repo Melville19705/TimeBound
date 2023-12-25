@@ -279,6 +279,9 @@ app.post("/register", async (req, res) => {
       verificationLink,
       verificationHTML
     );
+    res.render("register", {
+      message: "Verification email sent successfully to your email address.",
+    });
     console.log("Verification email sent successfully");
   } catch (error) {
     console.error("Error sending verification email:", error);
